@@ -1,6 +1,6 @@
 cask "hidden-revived" do
-  version "2.1.0"
-  sha256 "219bdf6d7afce663d18d9b2ecfb8168326cc6a398d5e6380eab67674676bdcb1"
+  version "2.1.1"
+  sha256 "12bcc1d0cff4881ef38b0530fd2b334d75e9ec05217ea10fff8be0e1ddb74d74"
 
   url "https://github.com/sdenike/hidden-revived/releases/download/v#{version}/HiddenBarRevived-#{version}.zip",
       verified: "github.com/sdenike/hidden-revived/"
