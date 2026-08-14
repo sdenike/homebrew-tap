@@ -1,6 +1,6 @@
 cask "textmate-revived" do
-  version "3.0.0-revived.17"
-  sha256 "882833deafd39d365f0d3f28bbb7c7f40041ad1f5f5fc730fca70fdf23b3e3df"
+  version "3.0.0-revived.18"
+  sha256 "2a4749352aab1b8e3f4dda4d52787d6cf73ddba3a498440a80034cebcd1d95cc"
 
   url "https://github.com/sdenike/textmate/releases/download/v#{version}/TextMate-#{version}.tbz",
       verified: "github.com/sdenike/textmate/"
