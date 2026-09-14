@@ -2,8 +2,7 @@ cask "textmate-revived" do
   version "3.0.0-revived.27"
   sha256 "b6a731a6c4951cabb99475df1d7703550d6e8d6db140cef82569bf25c1ed1081"
 
-  url "https://github.com/sdenike/textmate/releases/download/v#{version}/TextMate-#{version}.tbz",
-      verified: "github.com/sdenike/textmate/"
+  url "https://github.com/sdenike/textmate/releases/download/v#{version}/TextMate-#{version}.tbz"
   name "TextMate Revived"
   desc "Maintained fork of TextMate — text editor for macOS, targeting macOS 26 on Apple silicon"
   homepage "https://github.com/sdenike/textmate"
