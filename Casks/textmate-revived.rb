@@ -4,7 +4,7 @@ cask "textmate-revived" do
 
   url "https://github.com/sdenike/textmate/releases/download/v#{version}/TextMate-#{version}.tbz"
   name "TextMate Revived"
-  desc "Maintained fork of TextMate — text editor for macOS, targeting macOS 26 on Apple silicon"
+  desc "Maintained fork of the TextMate text editor"
   homepage "https://github.com/sdenike/textmate"
 
   livecheck do
@@ -13,8 +13,8 @@ cask "textmate-revived" do
   end
 
   auto_updates true
-  depends_on macos: :tahoe
   depends_on arch: :arm64
+  depends_on macos: :tahoe
 
   app "TextMate.app"
 
