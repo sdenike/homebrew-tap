@@ -104,13 +104,12 @@ class FfmpegFull < Formula
     ]
 
     # yadif_videotoolbox needs the Metal toolchain; build without it if absent.
-    if quiet_system("xcrun", "-sdk", "macosx", "metal", "-v") &&
-       quiet_system("xcrun", "-sdk", "macosx", "metallib", "--version")
-      args += %w[
-        --enable-metal
-        --metalcc=xcrun -sdk macosx metal
-        --metallib=xcrun -sdk macosx metallib
-      ]
+    # configure splits --metalcc on spaces, so pass resolved tool paths.
+    metalcc = Utils.safe_popen_read("xcrun", "-sdk", "macosx", "-f", "metal", err: :close).chomp
+    metallib = Utils.safe_popen_read("xcrun", "-sdk", "macosx", "-f", "metallib", err: :close).chomp
+    if !metalcc.empty? && !metallib.empty? && quiet_system(metalcc, "-v")
+      ENV["CLANG_MODULE_CACHE_PATH"] = buildpath/"clang-modules"
+      args += %W[--enable-metal --metalcc=#{metalcc} --metallib=#{metallib}]
     else
       opoo "Metal toolchain not found; building without yadif_videotoolbox"
     end
