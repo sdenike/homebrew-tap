@@ -80,10 +80,12 @@ class Ffmpeg < Formula
       --host-cflags=#{ENV.cflags}
       --host-ldflags=#{ENV.ldflags}
       --enable-shared
-      --disable-static
+      --enable-static
       --disable-debug
       --enable-pthreads
       --enable-neon
+      --extra-cflags=-mcpu=apple-m1
+      --extra-cxxflags=-mcpu=apple-m1
       --enable-runtime-cpudetect
       --enable-gpl
       --enable-version3
