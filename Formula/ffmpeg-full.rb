@@ -1,5 +1,5 @@
 class FfmpegFull < Formula
-  desc "FFmpeg with the kitchen sink for Apple Silicon: GPL, nonfree fdk-aac, whisper, VVC, JPEG XL"
+  desc "FFmpeg with every codec and filter, built for Apple Silicon"
   homepage "https://ffmpeg.org/"
   url "https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz"
   sha256 "8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e"
