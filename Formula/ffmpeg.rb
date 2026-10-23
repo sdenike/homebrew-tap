@@ -1,5 +1,5 @@
-class FfmpegFull < Formula
-  desc "FFmpeg with every codec and filter, built for Apple Silicon"
+class Ffmpeg < Formula
+  desc "With every codec and filter, built for Apple Silicon"
   homepage "https://ffmpeg.org/"
   url "https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz"
   sha256 "8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e"
@@ -42,22 +42,20 @@ class FfmpegFull < Formula
   uses_from_macos "bzip2"
   uses_from_macos "zlib"
 
-  conflicts_with "ffmpeg", because: "both install ffmpeg/ffprobe/ffplay and the libav* libraries"
-
   # Reviewed upstream fix for the yadif_videotoolbox teardown crash (FFmpeg PR 23850).
-  resource "ffmpeg-full-info" do
-    url "https://raw.githubusercontent.com/sdenike/homebrew-tap/e8e7bfead0dea4493452166c8cec981f3310f1d9/scripts/ffmpeg-full-info"
+  resource "ffmpeg-info" do
+    url "https://raw.githubusercontent.com/sdenike/homebrew-tap/5ef02a79f520dd4595856a2256623b82e5104ce4/scripts/ffmpeg-info"
     sha256 "802b09b63337af5963b349927c97ae4b1d935058cff998c8a672458201220c15"
   end
 
   patch do
-    url "https://raw.githubusercontent.com/sdenike/homebrew-tap/6c1d482e27bc5f2366156603fee01b4c629dabbe/patches/ffmpeg-full-yadif-videotoolbox.patch"
+    url "https://raw.githubusercontent.com/sdenike/homebrew-tap/5ef02a79f520dd4595856a2256623b82e5104ce4/patches/ffmpeg-yadif-videotoolbox.patch"
     sha256 "ef03bb929ff86d5a8fc3052065e2e120d38ff6d64df6c592c331b0ee18dce595"
   end
 
   # Canonical JSON output for the whisper filter (vendored from Aagedal Photo Agent).
   patch do
-    url "https://raw.githubusercontent.com/sdenike/homebrew-tap/6c1d482e27bc5f2366156603fee01b4c629dabbe/patches/ffmpeg-full-whisper-canonical-json.patch"
+    url "https://raw.githubusercontent.com/sdenike/homebrew-tap/5ef02a79f520dd4595856a2256623b82e5104ce4/patches/ffmpeg-whisper-canonical-json.patch"
     sha256 "f34d798a927a417c28ad6b6836b2ed881ab758b2de61170ea8f3c9000ed9ce68"
   end
 
@@ -69,7 +67,6 @@ class FfmpegFull < Formula
       --enable-shared
       --disable-static
       --disable-debug
-      --disable-doc
       --enable-pthreads
       --enable-neon
       --enable-runtime-cpudetect
@@ -122,7 +119,7 @@ class FfmpegFull < Formula
     system "./configure", *args
     system "make", "install"
 
-    resource("ffmpeg-full-info").stage { bin.install "ffmpeg-full-info" }
+    resource("ffmpeg-info").stage { bin.install "ffmpeg-info" }
   end
 
   def caveats
@@ -133,7 +130,7 @@ class FfmpegFull < Formula
   end
 
   test do
-    assert_match "fdk-aac", shell_output(bin/"ffmpeg-full-info")
+    assert_match "fdk-aac", shell_output(bin/"ffmpeg-info")
     # Encode a test pattern with a few of the extras and read it back.
     system bin/"ffmpeg", "-hide_banner", "-loglevel", "error",
            "-f", "lavfi", "-i", "testsrc=duration=1:size=320x240:rate=15",
