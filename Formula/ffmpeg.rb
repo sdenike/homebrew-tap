@@ -4,7 +4,14 @@ class Ffmpeg < Formula
   url "https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz"
   sha256 "8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e"
   license :cannot_represent # GPL-3.0-or-later build with nonfree libfdk-aac; do not redistribute binaries
-  head "https://git.ffmpeg.org/ffmpeg.git", branch: "master"
+  revision 1 # matches homebrew-core ffmpeg 9.0.2_1 so this is a like-for-like keg
+  compatibility_version 3
+  head "https://github.com/FFmpeg/FFmpeg.git", branch: "master"
+
+  livecheck do
+    url "https://ffmpeg.org/download.html"
+    regex(/href=.*?ffmpeg[._-]v?(\d+(?:\.\d+)+)\.t/i)
+  end
 
   depends_on "pkgconf" => :build
   depends_on "aom"
@@ -40,6 +47,7 @@ class Ffmpeg < Formula
   depends_on "zeromq"
 
   uses_from_macos "bzip2"
+  uses_from_macos "libxml2"
   uses_from_macos "zlib"
 
   # Reviewed upstream fix for the yadif_videotoolbox teardown crash (FFmpeg PR 23850).
@@ -59,11 +67,18 @@ class Ffmpeg < Formula
     sha256 "f34d798a927a417c28ad6b6836b2ed881ab758b2de61170ea8f3c9000ed9ce68"
   end
 
+  deny_network_access! [:postinstall, :test]
+
   def install
+    # The new linker leads to duplicate symbol issue https://github.com/homebrew-ffmpeg/homebrew-ffmpeg/issues/140
+    ENV.append "LDFLAGS", "-Wl,-ld_classic" if DevelopmentTools.ld64_version.between?("1015.7", "1022.1")
+
     args = %W[
       --prefix=#{prefix}
       --arch=arm64
       --cc=#{ENV.cc}
+      --host-cflags=#{ENV.cflags}
+      --host-ldflags=#{ENV.ldflags}
       --enable-shared
       --disable-static
       --disable-debug
@@ -118,6 +133,11 @@ class Ffmpeg < Formula
 
     system "./configure", *args
     system "make", "install"
+
+    # Build and install additional FFmpeg tools, as homebrew-core's ffmpeg does.
+    system "make", "alltools"
+    bin.install (buildpath/"tools").children.select { |f| f.file? && f.executable? }
+    pkgshare.install buildpath/"tools/python"
 
     resource("ffmpeg-info").stage { bin.install "ffmpeg-info" }
   end
