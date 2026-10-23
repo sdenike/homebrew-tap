@@ -1,0 +1,87 @@
+#!/bin/bash
+# Show what an FFmpeg build has compiled in. Usage: ffmpeg-full-info [path/to/ffmpeg] [--all]
+set -u
+
+here="$(cd "$(dirname "$0")" && pwd)"
+FF="${1:-${here}/ffmpeg}"
+[ "${FF}" = "--all" ] && { FF="${here}/ffmpeg"; ALL=1; }
+ALL="${ALL:-0}"
+[ "${2:-}" = "--all" ] && ALL=1
+[ -x "${FF}" ] || FF="$(command -v "${FF}" || true)"
+[ -x "${FF}" ] || { echo "ffmpeg not found" >&2; exit 1; }
+
+q() { "${FF}" -hide_banner "$@" 2>/dev/null; }
+names() { awk '$1 ~ /^[A-Z.]+$/ && NF >= 2 && $2 != "=" {print $2}'; }
+protos() { "${FF}" -hide_banner -protocols 2>/dev/null | awk 'NF==1 && $1 !~ /:$/ {print $1}' | sort -u; }
+wrap() { tr '\n' ' ' | fold -s -w 96 | sed 's/^/    /'; echo; }
+head_() { printf '\n== %s ==\n' "$1"; }
+
+conf="$(q -buildconf | tr -s ' \t' '\n\n' | grep -- '^--')"
+has() { echo "${conf}" | grep -qx -- "$1"; }
+mark() { if has "$1"; then printf '  [x] %-26s %s\n' "$2" "$3"; else printf '  [ ] %-26s %s\n' "$2" "$3"; fi; }
+
+echo "$("${FF}" -version | sed -n 1p)"
+q -version | grep '^built with'
+file "${FF}" | sed 's/^[^:]*: /  /'
+echo "  license: $(has --enable-nonfree && echo 'nonfree (not redistributable)' || { has --enable-gpl && echo GPL; })$(has --enable-version3 && echo ' v3')"
+
+head_ "External libraries"
+mark --enable-libx264 x264 "H.264 encode"
+mark --enable-libx265 x265 "HEVC encode"
+mark --enable-libsvtav1 SVT-AV1 "AV1 encode"
+mark --enable-libaom libaom "AV1 encode/decode"
+mark --enable-libdav1d dav1d "AV1 decode"
+mark --enable-libvpx libvpx "VP8/VP9"
+mark --enable-libvvenc vvenc "VVC / H.266 encode"
+mark --enable-libjxl libjxl "JPEG XL"
+mark --enable-libwebp libwebp "WebP"
+mark --enable-libopenjpeg openjpeg "JPEG 2000"
+mark --enable-libtheora theora "Theora"
+mark --enable-libopus opus "Opus"
+mark --enable-libvorbis vorbis "Vorbis"
+mark --enable-libmp3lame lame "MP3 encode"
+mark --enable-libfdk-aac fdk-aac "AAC encode (nonfree)"
+mark --enable-libsoxr soxr "resampler"
+mark --enable-libass libass "subtitle rendering"
+mark --enable-libfreetype freetype "drawtext"
+mark --enable-libfontconfig fontconfig "font lookup"
+mark --enable-libharfbuzz harfbuzz "text shaping"
+mark --enable-libfribidi fribidi "bidi text"
+mark --enable-libbluray libbluray "Blu-ray input"
+mark --enable-libvmaf libvmaf "VMAF quality metric"
+mark --enable-whisper whisper.cpp "speech-to-text filter"
+mark --enable-libsrt srt "SRT streaming"
+mark --enable-libzmq zeromq "ZMQ messaging"
+mark --enable-openssl OpenSSL "https/TLS"
+mark --enable-ffplay ffplay "player (SDL2)"
+
+head_ "Apple acceleration"
+mark --enable-videotoolbox VideoToolbox "hw encode/decode"
+mark --enable-audiotoolbox AudioToolbox "AAC/ALAC/etc"
+mark --enable-metal Metal "yadif_videotoolbox etc"
+mark --enable-neon NEON "ARM SIMD"
+echo "  hwaccels: $(q -hwaccels | tail -n +2 | tr '\n' ' ')"
+
+head_ "Summary"
+for k in encoders decoders muxers demuxers filters; do
+    printf '  %-10s %s\n' "${k}" "$(q -${k} | names | sort -u | wc -l | tr -d ' ')"
+done
+printf '  %-10s %s\n' protocols "$(protos | wc -l | tr -d ' ')"
+printf '  %-10s %s\n' bsfs "$(q -bsfs | awk 'NF==1 && $1 !~ /:$/' | wc -l | tr -d ' ')"
+
+head_ "Video encoders"; q -encoders | awk '$1 ~ /^V/ && $2 != "=" {print $2}' | sort | wrap
+head_ "Audio encoders"; q -encoders | awk '$1 ~ /^A/ && $2 != "=" {print $2}' | sort | wrap
+head_ "Hardware (VideoToolbox) codecs"; { q -encoders; q -decoders; } | names | grep -E 'videotoolbox|_at$' | sort -u | wrap
+head_ "Protocols"; protos | wrap
+
+if [ "${ALL}" = 1 ]; then
+    head_ "Filters"; q -filters | names | sort -u | wrap
+    head_ "Decoders"; q -decoders | names | sort -u | wrap
+    head_ "Muxers"; q -muxers | names | sort -u | wrap
+    head_ "Demuxers"; q -demuxers | names | sort -u | wrap
+fi
+
+head_ "Linked libraries"
+otool -L "${FF}" | tail -n +2 | awk '{print $1}' | sed 's#.*/##' | sort -u | wrap
+echo
+echo "Tip: ${0##*/} --all lists every filter, decoder, muxer and demuxer. Full configure line: ffmpeg -buildconf"
