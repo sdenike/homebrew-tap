@@ -46,13 +46,13 @@ class FfmpegFull < Formula
 
   # Reviewed upstream fix for the yadif_videotoolbox teardown crash (FFmpeg PR 23850).
   patch do
-    url "https://raw.githubusercontent.com/sdenike/homebrew-tap/main/patches/ffmpeg-full-yadif-videotoolbox.patch"
+    url "https://raw.githubusercontent.com/sdenike/homebrew-tap/6c1d482e27bc5f2366156603fee01b4c629dabbe/patches/ffmpeg-full-yadif-videotoolbox.patch"
     sha256 "ef03bb929ff86d5a8fc3052065e2e120d38ff6d64df6c592c331b0ee18dce595"
   end
 
   # Canonical JSON output for the whisper filter (vendored from Aagedal Photo Agent).
   patch do
-    url "https://raw.githubusercontent.com/sdenike/homebrew-tap/main/patches/ffmpeg-full-whisper-canonical-json.patch"
+    url "https://raw.githubusercontent.com/sdenike/homebrew-tap/6c1d482e27bc5f2366156603fee01b4c629dabbe/patches/ffmpeg-full-whisper-canonical-json.patch"
     sha256 "f34d798a927a417c28ad6b6836b2ed881ab758b2de61170ea8f3c9000ed9ce68"
   end
 
