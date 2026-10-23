@@ -45,6 +45,11 @@ class FfmpegFull < Formula
   conflicts_with "ffmpeg", because: "both install ffmpeg/ffprobe/ffplay and the libav* libraries"
 
   # Reviewed upstream fix for the yadif_videotoolbox teardown crash (FFmpeg PR 23850).
+  resource "ffmpeg-full-info" do
+    url "https://raw.githubusercontent.com/sdenike/homebrew-tap/e8e7bfead0dea4493452166c8cec981f3310f1d9/scripts/ffmpeg-full-info"
+    sha256 "802b09b63337af5963b349927c97ae4b1d935058cff998c8a672458201220c15"
+  end
+
   patch do
     url "https://raw.githubusercontent.com/sdenike/homebrew-tap/6c1d482e27bc5f2366156603fee01b4c629dabbe/patches/ffmpeg-full-yadif-videotoolbox.patch"
     sha256 "ef03bb929ff86d5a8fc3052065e2e120d38ff6d64df6c592c331b0ee18dce595"
@@ -116,6 +121,8 @@ class FfmpegFull < Formula
 
     system "./configure", *args
     system "make", "install"
+
+    resource("ffmpeg-full-info").stage { bin.install "ffmpeg-full-info" }
   end
 
   def caveats
@@ -126,6 +133,7 @@ class FfmpegFull < Formula
   end
 
   test do
+    assert_match "fdk-aac", shell_output(bin/"ffmpeg-full-info")
     # Encode a test pattern with a few of the extras and read it back.
     system bin/"ffmpeg", "-hide_banner", "-loglevel", "error",
            "-f", "lavfi", "-i", "testsrc=duration=1:size=320x240:rate=15",
