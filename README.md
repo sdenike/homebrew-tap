@@ -47,7 +47,7 @@ Compared with core it adds:
 - VideoToolbox, AudioToolbox and Metal support
 - Extra codecs and filters: libfdk-aac, whisper (with canonical JSON output), VVenC, JPEG XL,
   AOM, SVT-AV1, dav1d, libvmaf, SRT, libbluray, OpenJPEG, Theora, Vorbis, WebP, drawtext/libass
-- VideoToolbox-capable `yadif` (patched)
+- Patched `yadif_videotoolbox` (teardown crash fix, FFmpeg PR 23850)
 - `ffplay`, all extra tools (`zmqsend`, etc.) and `ffmpeg-info` — run `ffmpeg-info --all` to
   list everything compiled in
 
